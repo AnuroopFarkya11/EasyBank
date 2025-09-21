@@ -23,13 +23,13 @@ import static org.springframework.security.config.Customizer.withDefaults;
 public class ProjectSecurityConfig {
 
 
-    private final UserDetailsService userDetailsService;
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+        httpSecurity.csrf(csrf->csrf.disable());
         httpSecurity.authorizeHttpRequests((request)
                 -> request.requestMatchers("/myAccount", "/myBalance", "/myCards", "/contact", "/myLoans").authenticated()
-                .requestMatchers("/notices", "/contact").permitAll());
+                .requestMatchers("/notices", "/contact","/error","/register").permitAll());
         httpSecurity.formLogin(withDefaults());
         httpSecurity.httpBasic(withDefaults());
 
