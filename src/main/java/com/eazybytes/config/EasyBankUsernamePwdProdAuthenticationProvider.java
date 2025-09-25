@@ -13,9 +13,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
-@Profile("!prod")
+@Profile("prod")
 @RequiredArgsConstructor
-public class EasyBankUsernamePwdAuthenticationProvider implements AuthenticationProvider {
+public class EasyBankUsernamePwdProdAuthenticationProvider implements AuthenticationProvider {
 
     private final UserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
@@ -28,9 +28,14 @@ public class EasyBankUsernamePwdAuthenticationProvider implements Authentication
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-        return new UsernamePasswordAuthenticationToken(username, password, userDetails.getAuthorities());
-
-
+        if(passwordEncoder.matches(password,userDetails.getPassword()))
+        {
+            return new UsernamePasswordAuthenticationToken(username,password,userDetails.getAuthorities());
+        }
+        else
+        {
+            throw new BadCredentialsException("Bad credentials");
+        }
     }
 
     @Override
