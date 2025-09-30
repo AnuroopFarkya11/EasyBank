@@ -1,5 +1,6 @@
 package com.eazybytes.config;
 
+import com.eazybytes.exceptionhandler.CustomAccessDeniedHandler;
 import com.eazybytes.exceptionhandler.CustomBasicAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -36,6 +37,7 @@ public class ProjectSecurityConfig {
         httpSecurity.formLogin(withDefaults());
 //        httpSecurity.httpBasic(hbc -> hbc.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
         httpSecurity.exceptionHandling(exh -> exh.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
+        httpSecurity.exceptionHandling(ehc -> ehc.accessDeniedHandler(new CustomAccessDeniedHandler()));
         return httpSecurity.build();
     }
 
