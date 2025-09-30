@@ -1,5 +1,6 @@
 package com.eazybytes.config;
 
+import com.eazybytes.exceptionhandler.CustomBasicAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,21 +26,18 @@ import static org.springframework.security.config.Customizer.withDefaults;
 public class ProjectSecurityConfig {
 
 
-
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.requiresChannel(rcc->rcc.anyRequest().requiresInsecure());
-        httpSecurity.csrf(csrf->csrf.disable());
+        httpSecurity.requiresChannel(rcc -> rcc.anyRequest().requiresInsecure());
+        httpSecurity.csrf(csrf -> csrf.disable());
         httpSecurity.authorizeHttpRequests((request)
                 -> request.requestMatchers("/myAccount", "/myBalance", "/myCards", "/contact", "/myLoans").authenticated()
-                .requestMatchers("/notices", "/contact","/error","/register").permitAll());
+                .requestMatchers("/notices", "/contact", "/error", "/register").permitAll());
         httpSecurity.formLogin(withDefaults());
-        httpSecurity.httpBasic(withDefaults());
-
+//        httpSecurity.httpBasic(hbc -> hbc.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
+        httpSecurity.exceptionHandling(exh -> exh.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
         return httpSecurity.build();
     }
-
-
 
 
     /**
@@ -54,12 +52,13 @@ public class ProjectSecurityConfig {
      * }
      */
 
-    /** JDBC User Details Service
+    /**
+     * JDBC User Details Service
+     *
      * @Bean public UserDetailsService userDetailsService(DataSource dataSource) {
      * return new JdbcUserDetailsManager(dataSource);
      * }
      */
-
 
 
     @Bean
