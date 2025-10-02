@@ -31,7 +31,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
         response.setStatus(HttpStatus.FORBIDDEN.value());
         response.setContentType("application/json;charset=UTF-8");
         Map<String,Object> jsonResponse = new HashMap<>();
-        jsonResponse.put("timestamp",localDateTime);
+//        jsonResponse.put("timestamp",localDateTime);
         jsonResponse.put("message",message);
         jsonResponse.put("path",path);
 
