@@ -1,5 +1,6 @@
 package com.eazybytes.config;
 
+//import com.eazybytes.exceptionhandler.CustomAccessDeniedHandler;
 import com.eazybytes.exceptionhandler.CustomAccessDeniedHandler;
 import com.eazybytes.exceptionhandler.CustomBasicAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
@@ -30,14 +31,14 @@ public class ProjectSecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.requiresChannel(rcc -> rcc.anyRequest().requiresInsecure());
-        httpSecurity.sessionManagement(sm->sm.invalidSessionUrl("/invalidSession"));
+        httpSecurity.sessionManagement(sm->sm.invalidSessionUrl("/invalidSession").maximumSessions(3).maxSessionsPreventsLogin(true));
         httpSecurity.csrf(csrf -> csrf.disable());
         httpSecurity.authorizeHttpRequests((request)
                 -> request.requestMatchers("/myAccount", "/myBalance", "/myCards", "/contact", "/myLoans").authenticated()
                 .requestMatchers("/notices", "/contact", "/error", "/register","/invalidSession").permitAll());
         httpSecurity.formLogin(withDefaults());
-//        httpSecurity.httpBasic(hbc -> hbc.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
-        httpSecurity.exceptionHandling(exh -> exh.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
+        httpSecurity.httpBasic(hbc -> hbc.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
+//        httpSecurity.exceptionHandling(exh -> exh.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
         httpSecurity.exceptionHandling(ehc -> ehc.accessDeniedHandler(new CustomAccessDeniedHandler()));
         return httpSecurity.build();
     }

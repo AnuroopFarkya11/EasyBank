@@ -1,5 +1,7 @@
 package com.eazybytes.config;
 
+import com.eazybytes.exceptionhandler.CustomAccessDeniedHandler;
+import com.eazybytes.exceptionhandler.CustomBasicAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,13 +25,13 @@ public class ProjectSecurityProdConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.requiresChannel(rcc->rcc.anyRequest().requiresSecure());
-        httpSecurity.sessionManagement(sm->sm.invalidSessionUrl("/invalidSession"));
+        httpSecurity.sessionManagement(sm->sm.invalidSessionUrl("/invalidSession").maximumSessions(1).maxSessionsPreventsLogin(true));
         httpSecurity.csrf(csrf->csrf.disable());
         httpSecurity.authorizeHttpRequests((request)
                 -> request.requestMatchers("/myAccount", "/myBalance", "/myCards", "/contact", "/myLoans").authenticated()
                 .requestMatchers("/notices", "/contact","/error","/register","/invalidSession").permitAll());
-        httpSecurity.formLogin(withDefaults());
-        httpSecurity.httpBasic(withDefaults());
+        httpSecurity.httpBasic(hbc -> hbc.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
+        httpSecurity.exceptionHandling(ehc -> ehc.accessDeniedHandler(new CustomAccessDeniedHandler()));
 
         return httpSecurity.build();
     }
