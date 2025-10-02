@@ -30,10 +30,11 @@ public class ProjectSecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.requiresChannel(rcc -> rcc.anyRequest().requiresInsecure());
+        httpSecurity.sessionManagement(sm->sm.invalidSessionUrl("/invalidSession"));
         httpSecurity.csrf(csrf -> csrf.disable());
         httpSecurity.authorizeHttpRequests((request)
                 -> request.requestMatchers("/myAccount", "/myBalance", "/myCards", "/contact", "/myLoans").authenticated()
-                .requestMatchers("/notices", "/contact", "/error", "/register").permitAll());
+                .requestMatchers("/notices", "/contact", "/error", "/register","/invalidSession").permitAll());
         httpSecurity.formLogin(withDefaults());
 //        httpSecurity.httpBasic(hbc -> hbc.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
         httpSecurity.exceptionHandling(exh -> exh.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
