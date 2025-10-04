@@ -34,7 +34,7 @@ public class ProjectSecurityConfig {
         httpSecurity.sessionManagement(sm->sm.invalidSessionUrl("/invalidSession").maximumSessions(3).maxSessionsPreventsLogin(true));
         httpSecurity.csrf(csrf -> csrf.disable());
         httpSecurity.authorizeHttpRequests((request)
-                -> request.requestMatchers("/myAccount", "/myBalance", "/myCards", "/contact", "/myLoans").authenticated()
+                -> request.requestMatchers("/myAccount", "/myBalance", "/myCards", "/contact", "/myLoans", "/user").authenticated()
                 .requestMatchers("/notices", "/contact", "/error", "/register","/invalidSession").permitAll());
         httpSecurity.formLogin(withDefaults());
         httpSecurity.httpBasic(hbc -> hbc.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
