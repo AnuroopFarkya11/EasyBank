@@ -1,8 +1,10 @@
 package com.eazybytes.config;
 
 //import com.eazybytes.exceptionhandler.CustomAccessDeniedHandler;
+
 import com.eazybytes.exceptionhandler.CustomAccessDeniedHandler;
 import com.eazybytes.exceptionhandler.CustomBasicAuthenticationEntryPoint;
+import com.eazybytes.filter.CSRFCookieFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,6 +19,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.password.HaveIBeenPwnedRestApiPasswordChecker;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRepository;
 
 import javax.sql.DataSource;
 
@@ -31,13 +36,14 @@ public class ProjectSecurityConfig {
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.cors(corsConfig-> corsConfig.configurationSource(corsSourceConfiguration));
+        httpSecurity.cors(corsConfig -> corsConfig.configurationSource(corsSourceConfiguration));
         httpSecurity.requiresChannel(rcc -> rcc.anyRequest().requiresInsecure());
-        httpSecurity.sessionManagement(sm->sm.invalidSessionUrl("/invalidSession").maximumSessions(3).maxSessionsPreventsLogin(true));
-        httpSecurity.csrf(csrf -> csrf.disable());
+        httpSecurity.sessionManagement(sm -> sm.invalidSessionUrl("/invalidSession").maximumSessions(3).maxSessionsPreventsLogin(true));
+        httpSecurity.csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()));
+        httpSecurity.addFilterAfter(new CSRFCookieFilter(), BasicAuthenticationFilter.class);
         httpSecurity.authorizeHttpRequests((request)
                 -> request.requestMatchers("/myAccount", "/myBalance", "/myCards", "/contact", "/myLoans", "/user").authenticated()
-                .requestMatchers("/notices", "/contact", "/error", "/register","/invalidSession").permitAll());
+                .requestMatchers("/notices", "/contact", "/error", "/register", "/invalidSession").permitAll());
         httpSecurity.formLogin(withDefaults());
         httpSecurity.httpBasic(hbc -> hbc.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
 //        httpSecurity.exceptionHandling(exh -> exh.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
