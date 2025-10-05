@@ -22,6 +22,6 @@ public class EasyBankUserDetailsService implements UserDetailsService {
         Customer customer = customerRepository.findByEmail(username).orElseThrow(() ->
                 new UsernameNotFoundException(username));
         List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(customer.getRole()));
-        return new User(customer.getEmail(), customer.getPassword(), authorities);
+        return new User(customer.getEmail(), customer.getPwd(), authorities);
     }
 }
