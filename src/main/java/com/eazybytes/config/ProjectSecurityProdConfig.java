@@ -20,23 +20,23 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @RequiredArgsConstructor
 public class ProjectSecurityProdConfig {
 
+    final CustomCorsSourceConfiguration corsSourceConfiguration;
 
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.requiresChannel(rcc->rcc.anyRequest().requiresSecure());
-        httpSecurity.sessionManagement(sm->sm.invalidSessionUrl("/invalidSession").maximumSessions(1).maxSessionsPreventsLogin(true));
-        httpSecurity.csrf(csrf->csrf.disable());
+        httpSecurity.cors(corsConfig -> corsConfig.configurationSource(corsSourceConfiguration));
+        httpSecurity.requiresChannel(rcc -> rcc.anyRequest().requiresSecure());
+        httpSecurity.sessionManagement(sm -> sm.invalidSessionUrl("/invalidSession").maximumSessions(1).maxSessionsPreventsLogin(true));
+        httpSecurity.csrf(csrf -> csrf.disable());
         httpSecurity.authorizeHttpRequests((request)
                 -> request.requestMatchers("/myAccount", "/myBalance", "/myCards", "/contact", "/myLoans").authenticated()
-                .requestMatchers("/notices", "/contact","/error","/register","/invalidSession").permitAll());
+                .requestMatchers("/notices", "/contact", "/error", "/register", "/invalidSession").permitAll());
         httpSecurity.httpBasic(hbc -> hbc.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
         httpSecurity.exceptionHandling(ehc -> ehc.accessDeniedHandler(new CustomAccessDeniedHandler()));
 
         return httpSecurity.build();
     }
-
-
 
 
     /**
@@ -51,12 +51,13 @@ public class ProjectSecurityProdConfig {
      * }
      */
 
-    /** JDBC User Details Service
+    /**
+     * JDBC User Details Service
+     *
      * @Bean public UserDetailsService userDetailsService(DataSource dataSource) {
      * return new JdbcUserDetailsManager(dataSource);
      * }
      */
-
 
 
     @Bean

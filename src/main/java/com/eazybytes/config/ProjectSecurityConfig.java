@@ -27,9 +27,11 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @RequiredArgsConstructor
 public class ProjectSecurityConfig {
 
+    final CustomCorsSourceConfiguration corsSourceConfiguration;
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+        httpSecurity.cors(corsConfig-> corsConfig.configurationSource(corsSourceConfiguration));
         httpSecurity.requiresChannel(rcc -> rcc.anyRequest().requiresInsecure());
         httpSecurity.sessionManagement(sm->sm.invalidSessionUrl("/invalidSession").maximumSessions(3).maxSessionsPreventsLogin(true));
         httpSecurity.csrf(csrf -> csrf.disable());
