@@ -36,18 +36,26 @@ public class ProjectSecurityConfig {
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.cors(corsConfig -> corsConfig.configurationSource(corsSourceConfiguration));
-        httpSecurity.requiresChannel(rcc -> rcc.anyRequest().requiresInsecure());
-        httpSecurity.sessionManagement(sm -> sm.invalidSessionUrl("/invalidSession").maximumSessions(3).maxSessionsPreventsLogin(true));
+        httpSecurity.cors(cors -> cors.configurationSource(corsSourceConfiguration));
+        httpSecurity.requiresChannel(channel -> channel.anyRequest().requiresInsecure());
+        httpSecurity.sessionManagement(session -> session
+                .invalidSessionUrl("/invalidSession")
+                .maximumSessions(3)
+                .maxSessionsPreventsLogin(true)
+        );
         httpSecurity.csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()));
         httpSecurity.addFilterAfter(new CSRFCookieFilter(), BasicAuthenticationFilter.class);
-        httpSecurity.authorizeHttpRequests((request)
-                -> request.requestMatchers("/myAccount", "/myBalance", "/myCards", "/contact", "/myLoans", "/user").authenticated()
-                .requestMatchers("/notices", "/contact", "/error", "/register", "/invalidSession").permitAll());
+        httpSecurity.authorizeHttpRequests(auth -> auth
+                .requestMatchers("/myAccount").hasAuthority("VIEWACCOUNT")
+                .requestMatchers("/myBalance").hasAnyAuthority("VIEWBALANCE","VIEWACCOUNT")
+                .requestMatchers("/myCards").hasAuthority("VIEWCARDS")
+                .requestMatchers("/myLoans").hasAuthority("VIEWLOANS")
+                .requestMatchers("/user").authenticated()
+                .requestMatchers("/notices", "/contact", "/error", "/register", "/invalidSession").permitAll()
+        );
         httpSecurity.formLogin(withDefaults());
-        httpSecurity.httpBasic(hbc -> hbc.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
-//        httpSecurity.exceptionHandling(exh -> exh.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
-        httpSecurity.exceptionHandling(ehc -> ehc.accessDeniedHandler(new CustomAccessDeniedHandler()));
+        httpSecurity.httpBasic(http -> http.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
+        httpSecurity.exceptionHandling(ex -> ex.accessDeniedHandler(new CustomAccessDeniedHandler()));
         return httpSecurity.build();
     }
 
